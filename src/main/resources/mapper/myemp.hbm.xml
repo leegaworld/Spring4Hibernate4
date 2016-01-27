@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- 모델쪽의 MyEmp 클래스와 테이블 MYEMP를 매핑한다. -->
+<hibernate-mapping package="org.spring4.sample.model">
+       <class name="MyEmp" table="MYEMP">
+              <id name="empno" column="empno">
+              </id>
+              <property name="ename" column="ename" />
+              <property name="addr" column="addr" />
+       </class>
+</hibernate-mapping>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+              http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+              http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+              http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+       ">
+
+    <!-- DB접근을 위한 DataSource -->
+    <!--
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" >
+           <property name="driverClassName"><value>oracle.jdbc.driver.OracleDriver</value></property>
+           <property name="url"><value>jdbc:oracle:thin:@192.168.37.171:1521:db1</value></property>
+           <property name="username"><value>scott</value></property>
+           <property name="password"><value>tiger</value></property>
+    </bean>
+    -->
+
+    <util:properties id="db" location="classpath:properties/database.properties"/>
+
+    <!-- DBCP: BoneCP 적용 -->
+    <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+        <property name="driverClass" value="#{db['jdbc.driver']}"/>
+        <property name="jdbcUrl" value="#{db['jdbc.url']}"/>
+        <property name="username" value="#{db['jdbc.username']}"/>
+        <property name="password" value="#{db['jdbc.password']}"/>
+        <property name="idleConnectionTestPeriodInMinutes" value="60"/>
+        <!-- connection이 쉬고 있는 상태인지 확인 주기-->
+        <property name="idleMaxAgeInMinutes" value="240"/>
+        <!-- connection이 유휴상태로 놓어지는 최대시간. 이 시간 이후, connection은 소멸된다. -->
+        <property name="maxConnectionsPerPartition" value="30"/>
+        <!-- Partition 당 최대 connection의 갯수. -->
+        <property name="minConnectionsPerPartition" value="10"/>
+        <!--Partition 당 최소 connection의 갯수.(최소 연결 갯수 partitionCount * minConnectionsPerPartition) -->
+        <property name="partitionCount" value="3"/>
+        <!-- partition 갯수. BoneCP는 partition 이라는 개념으로 Connection Pool의 영역을 나눠서 관리한다. -->
+        <property name="acquireIncrement" value="5"/>
+        <!-- 한번에 connection을 얻어낼 때, 얻어내는 숫자. -->
+        <property name="statementsCacheSize" value="100"/>
+        <property name="releaseHelperThreads" value="3"/>
+        <!-- connection의 반환시에 사용되는 thread의 갯수. -->
+    </bean>
+
+    <!--  하이버네이트 세션을 위한 세션팩토리 -->
+    <bean id="sessionFactory"
+          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:config/hibernate.cfg.xml"/>
+
+        <!-- Hibernate 관련 설정을 해 줄수도 있지만, hibernate.cfg.xml 으로 설정을 분리함
+        <property name="hibernateProperties">
+               <props>
+                      <prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+               </props>
+        </property>
+        -->
+        <property name="packagesToScan" value="org.spring4.sample.model" />
+        <property name="mappingLocations" value="classpath*&#58;**/*.hbm.xml" />
+
+    </bean>
+
+    <tx:annotation-driven/>
+    <!-- 명시적 트랜젝션, @Transaction-->
+    <!-- 하이버네이트 트랜잭션을 위한 TransactionManager -->
+    <bean id="transactionManager"
+          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <!-- DAO를 일일이 선언하지 않고, 위에 생성된 sessionFactory를 @Autowiared 해서 사용한다.
+    <bean id="myEmpDao" class="org.spring4.sample.dao.impl.MyEmpDaoImpl">
+           <constructor-arg>
+                  <ref bean="sessionFactory" />
+           </constructor-arg>
+    </bean>
+    -->
+
+</beans>

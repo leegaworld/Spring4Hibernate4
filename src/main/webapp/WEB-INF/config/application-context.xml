@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       ">
+
+       <!-- 어노테이션이 적용된 class( @Controller, @Service, @Repository 를 포함한 class )를
+		로딩 base-package로 부터 스캔을 할 때 Controller 타입은 제외 시킨다. 제외 시키는 이유는 spring mvc에
+		관련된 설정 파일은 dispatcher-servlet.xml 에서 스캔 하기 때문이다. -->
+       <context:component-scan base-package="org.spring4.sample" />
+
+       <!-- Enables the Spring MVC @Controller programming model -->
+       <mvc:annotation-driven/>
+
+       <!-- Spring Security 설정을 위해 security-context.xml 로 이동 -->
+       <!-- 특별히 특정 기능을 사용하지 않아야 하는 경우가 아니라면 사용하는 것이 설정파일을 단순하게 만들어 준다.
+          @Autowired를 활용하여 주입없이도 바로 xml 객체를 불러올 수 있다. -->
+       <context:annotation-config/>
+
+       <!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+       <!--
+           <mvc:resources location="/static/images" mapping="/images/**" cache-period="10000"></mvc:resources>
+           <mvc:resources location="/static/css" mapping="/css/**" cache-period="10000"></mvc:resources>
+       -->
+       <mvc:default-servlet-handler/>
+
+</beans>
